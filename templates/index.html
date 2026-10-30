@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>TruthLens | Fake News Detection</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+
+<body>
+
+
+    <!-- Navigation -->
+
+    <nav>
+
+        <div class="logo">
+            TruthLens
+        </div>
+
+
+        <div class="nav-links">
+
+            <a href="#home">
+                Home
+            </a>
+
+            <a href="#about">
+                About
+            </a>
+
+            <a href="#analytics">
+                Analytics
+            </a>
+
+        </div>
+
+    </nav>
+
+
+
+    <!-- Hero Section -->
+
+    <section id="home" class="hero">
+
+        <div class="hero-content">
+
+            <p class="tagline">
+                AI-POWERED NEWS ANALYSIS
+            </p>
+
+
+            <h1>
+                Detect <span>Fake News</span>
+                with Machine Learning
+            </h1>
+
+
+            <p class="description">
+
+                TruthLens analyzes news content using machine learning
+                techniques and predicts whether the given article is
+                likely to be Real or Fake.
+
+            </p>
+
+        </div>
+
+
+
+        <!-- News Input -->
+
+        <div class="news-card">
+
+            <form action="/predict" method="POST">
+
+
+                <label for="news_title">
+                    Enter News Title
+                </label>
+
+
+                <input
+                    type="text"
+                    id="news_title"
+                    name="news_title"
+                    placeholder="Enter the news headline..."
+                    value="{{ news_title if news_title else '' }}"
+                    required
+                >
+
+
+                <label for="news_text">
+                    Enter News Article
+                </label>
+
+
+                <textarea
+                    id="news_text"
+                    name="news_text"
+                    placeholder="Paste the complete news article here..."
+                    required
+                >{{ news_text if news_text else '' }}</textarea>
+
+
+                <button type="submit">
+                    Analyze News
+                </button>
+
+
+            </form>
+
+
+
+            <!-- Prediction Result -->
+
+            {% if result %}
+
+
+            <div class="result-card
+                {% if result == 'FAKE NEWS' %}
+                    fake-result
+                {% else %}
+                    real-result
+                {% endif %}
+            ">
+
+
+                <p class="result-title">
+                    ANALYSIS RESULT
+                </p>
+
+
+                <h2>
+                    {{ result }}
+                </h2>
+
+
+                <p class="confidence-text">
+
+                    Model Confidence:
+
+                    <strong>
+                        {{ confidence }}%
+                    </strong>
+
+                </p>
+
+
+                <div class="confidence-bar">
+
+                    <div
+                        class="confidence-fill"
+                        style="width: {{ confidence }}%;">
+                    </div>
+
+                </div>
+
+
+                <p class="model-name">
+                    Model: Logistic Regression
+                </p>
+
+
+            </div>
+
+
+
+            <!-- Prediction Note -->
+
+            <p class="prediction-note">
+
+                Note: This prediction is based on patterns learned from
+                the training dataset and does not independently verify
+                the factual accuracy of the news.
+
+            </p>
+
+
+
+            <!-- Live Prediction Analysis -->
+
+            <div class="live-analysis">
+
+
+                <h3>
+                    Live Prediction Analysis
+                </h3>
+
+
+                <p class="live-description">
+
+                    Probability assigned by the Logistic Regression model
+                    for the submitted news article.
+
+                </p>
+
+
+
+                <!-- Fake Probability -->
+
+                <div class="probability-row">
+
+
+                    <div class="probability-label">
+
+                        <span>
+                            Fake News
+                        </span>
+
+                        <strong>
+                            {{ fake_probability }}%
+                        </strong>
+
+                    </div>
+
+
+                    <div class="probability-bar">
+
+                        <div
+                            class="probability-fill fake-fill"
+                            style="width: {{ fake_probability }}%;">
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+
+
+                <!-- Real Probability -->
+
+                <div class="probability-row">
+
+
+                    <div class="probability-label">
+
+                        <span>
+                            Real News
+                        </span>
+
+                        <strong>
+                            {{ real_probability }}%
+                        </strong>
+
+                    </div>
+
+
+                    <div class="probability-bar">
+
+                        <div
+                            class="probability-fill real-fill"
+                            style="width: {{ real_probability }}%;">
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+
+            </div>
+
+
+            {% endif %}
+
+
+        </div>
+
+    </section>
+
+
+
+    <!-- About Section -->
+
+    <section id="about" class="about">
+
+
+        <h2>
+            How TruthLens Works
+        </h2>
+
+
+        <p>
+
+            TruthLens uses Natural Language Processing and Machine
+            Learning to analyze news articles. The text is cleaned
+            during preprocessing and converted into numerical
+            features using TF-IDF. Multiple machine learning
+            algorithms are trained and evaluated before selecting
+            a model for prediction.
+
+        </p>
+
+
+    </section>
+
+
+
+    <!-- Analytics Dashboard -->
+
+    <section id="analytics" class="stats">
+
+
+        <h2>
+            TruthLens Analytics
+        </h2>
+
+
+        <p class="section-description">
+
+            Live statistics generated from news predictions made through
+            the TruthLens system.
+
+        </p>
+
+
+
+        <!-- Analytics Cards -->
+
+        <div class="analytics-cards">
+
+
+            <!-- Total Predictions -->
+
+            <div class="analytics-card">
+
+                <div class="analytics-icon">
+                    📊
+                </div>
+
+
+                <div>
+
+                    <p>
+                        Total Predictions
+                    </p>
+
+                    <h3>
+                        {{ analytics.total_predictions }}
+                    </h3>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- Fake News -->
+
+            <div class="analytics-card">
+
+                <div class="analytics-icon">
+                    ⚠️
+                </div>
+
+
+                <div>
+
+                    <p>
+                        Fake News Detected
+                    </p>
+
+                    <h3>
+                        {{ analytics.fake_count }}
+                    </h3>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- Real News -->
+
+            <div class="analytics-card">
+
+                <div class="analytics-icon">
+                    ✓
+                </div>
+
+
+                <div>
+
+                    <p>
+                        Real News Detected
+                    </p>
+
+                    <h3>
+                        {{ analytics.real_count }}
+                    </h3>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- Average Confidence -->
+
+            <div class="analytics-card">
+
+                <div class="analytics-icon">
+                    🎯
+                </div>
+
+
+                <div>
+
+                    <p>
+                        Average Confidence
+                    </p>
+
+                    <h3>
+                        {{ analytics.average_confidence }}%
+                    </h3>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- Prediction History -->
+
+        <div class="prediction-history">
+
+
+            <h3>
+                Prediction History
+            </h3>
+
+
+            {% if analytics.history %}
+
+
+            <div class="history-table-container">
+
+
+                <table class="history-table">
+
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Article
+                            </th>
+
+                            <th>
+                                Prediction
+                            </th>
+
+                            <th>
+                                Fake Probability
+                            </th>
+
+                            <th>
+                                Real Probability
+                            </th>
+
+                            <th>
+                                Confidence
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+
+                    <tbody>
+
+
+                        {% for item in analytics.history %}
+
+
+                        <tr>
+
+
+                            <td>
+                                {{ item.article }}
+                            </td>
+
+
+                            <td>
+
+
+                                <span class="
+
+                                    {% if item.prediction == 'FAKE NEWS' %}
+
+                                        history-fake
+
+                                    {% else %}
+
+                                        history-real
+
+                                    {% endif %}
+
+                                ">
+
+                                    {{ item.prediction }}
+
+                                </span>
+
+
+                            </td>
+
+
+                            <td>
+                                {{ item.fake_probability }}%
+                            </td>
+
+
+                            <td>
+                                {{ item.real_probability }}%
+                            </td>
+
+
+                            <td>
+                                {{ item.confidence }}%
+                            </td>
+
+
+                        </tr>
+
+
+                        {% endfor %}
+
+
+                    </tbody>
+
+
+                </table>
+
+
+            </div>
+
+
+            {% else %}
+
+
+            <div class="no-history">
+
+
+                <p>
+                    No predictions have been made yet.
+                </p>
+
+
+                <span>
+                    Analyze a news article to generate analytics.
+                </span>
+
+
+            </div>
+
+
+            {% endif %}
+
+
+        </div>
+
+
+
+        <!-- Live Prediction Graph -->
+
+        <div class="live-chart">
+
+
+            <h3>
+                Live Prediction Overview
+            </h3>
+
+
+            <p class="section-description">
+
+                Real-time distribution of Fake and Real News predictions.
+
+            </p>
+
+
+            <div class="chart-box">
+
+                <canvas id="predictionChart"></canvas>
+
+            </div>
+
+
+        </div>
+
+
+    </section>
+
+
+
+    <!-- Model Comparison Graph -->
+
+    <section class="comparison-chart">
+
+
+        <h2>
+            Model Comparison
+        </h2>
+
+
+        <p>
+
+            Performance comparison of the four machine learning
+            models based on Accuracy, Precision, Recall and F1 Score.
+
+        </p>
+
+
+        <div class="chart-container">
+
+
+            <img
+                src="{{ url_for('static', filename='model_comparison.png') }}"
+                alt="Machine Learning Model Comparison"
+            >
+
+
+        </div>
+
+
+    </section>
+
+
+
+    <!-- Confusion Matrices -->
+
+    <section class="confusion-section">
+
+
+        <h2>
+            Confusion Matrix Analysis
+        </h2>
+
+
+        <p class="section-description">
+
+            Confusion matrices show the actual and predicted
+            classifications produced by each machine learning model.
+
+        </p>
+
+
+
+        <div class="confusion-grid">
+
+
+
+            <!-- Logistic Regression -->
+
+            <div class="confusion-card">
+
+
+                <h3>
+                    Logistic Regression
+                </h3>
+
+
+                <img
+                    src="{{ url_for('static', filename='logistic_confusion_matrix.png') }}"
+                    alt="Logistic Regression Confusion Matrix"
+                >
+
+
+            </div>
+
+
+
+            <!-- Naive Bayes -->
+
+            <div class="confusion-card">
+
+
+                <h3>
+                    Naive Bayes
+                </h3>
+
+
+                <img
+                    src="{{ url_for('static', filename='naive_bayes_confusion_matrix.png') }}"
+                    alt="Naive Bayes Confusion Matrix"
+                >
+
+
+            </div>
+
+
+
+            <!-- SVM -->
+
+            <div class="confusion-card">
+
+
+                <h3>
+                    Support Vector Machine
+                </h3>
+
+
+                <img
+                    src="{{ url_for('static', filename='svm_confusion_matrix.png') }}"
+                    alt="SVM Confusion Matrix"
+                >
+
+
+            </div>
+
+
+
+            <!-- Random Forest -->
+
+            <div class="confusion-card">
+
+
+                <h3>
+                    Random Forest
+                </h3>
+
+
+                <img
+                    src="{{ url_for('static', filename='random_forest_confusion_matrix.png') }}"
+                    alt="Random Forest Confusion Matrix"
+                >
+
+
+            </div>
+
+
+        </div>
+
+
+    </section>
+
+
+
+    <!-- Footer -->
+
+    <footer>
+
+
+        <p>
+
+            © 2026 TruthLens | Fake News Detection System
+
+        </p>
+
+
+    </footer>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+    const fakeCount = {{ analytics.fake_count }};
+    const realCount = {{ analytics.real_count }};
+
+    const ctx = document
+        .getElementById("predictionChart")
+        .getContext("2d");
+
+    new Chart(ctx, {
+
+        type: "doughnut",
+
+        data: {
+
+            labels: [
+                "Fake News",
+                "Real News"
+            ],
+
+            datasets: [{
+
+                data: [
+                    fakeCount,
+                    realCount
+                ],
+
+                backgroundColor: [
+                    "#ef4444",
+                    "#22c55e"
+                ],
+
+                borderWidth: 0
+
+            }]
+
+        },
+
+        options: {
+
+            responsive: true,
+
+            maintainAspectRatio: false,
+
+            plugins: {
+
+                legend: {
+                    position: "bottom"
+                }
+
+            }
+
+        }
+
+    });
+
+</script>
+
+</body>
+</html>

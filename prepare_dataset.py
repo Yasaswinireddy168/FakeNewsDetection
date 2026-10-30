@@ -1,38 +1,88 @@
 import pandas as pd
+import re
 
-# Load the two datasets
+# Load datasets
 fake_news = pd.read_csv("dataset/Fake.csv")
 real_news = pd.read_csv("dataset/True.csv")
 
-# Add labels
+# Assign labels
 fake_news["label"] = 0
 real_news["label"] = 1
 
-# Combine both datasets
-news_data = pd.concat([fake_news, real_news], ignore_index=True)
+# Combine title and article text
+fake_news["content"] = (
+    fake_news["title"].fillna("") + " " +
+    fake_news["text"].fillna("")
+)
 
-# Remove duplicate rows
-news_data = news_data.drop_duplicates()
+real_news["content"] = (
+    real_news["title"].fillna("") + " " +
+    real_news["text"].fillna("")
+)
 
-# Shuffle the dataset
-news_data = news_data.sample(frac=1, random_state=42).reset_index(drop=True)
+# Remove obvious source cues such as Reuters
+def remove_source_cues(text):
+    text = str(text)
 
-# Save the combined dataset
-news_data.to_csv("dataset/news.csv", index=False)
+    text = re.sub(
+        r'\breuters\b',
+        '',
+        text,
+        flags=re.IGNORECASE
+    )
 
-# Display information
+    text = re.sub(
+        r'\s+',
+        ' ',
+        text
+    ).strip()
+
+    return text
+
+
+fake_news["content"] = fake_news["content"].apply(
+    remove_source_cues
+)
+
+real_news["content"] = real_news["content"].apply(
+    remove_source_cues
+)
+
+# Keep only required columns
+fake_news = fake_news[["content", "label"]]
+real_news = real_news[["content", "label"]]
+
+# Combine
+news_data = pd.concat(
+    [fake_news, real_news],
+    ignore_index=True
+)
+
+# Remove duplicate articles
+news_data = news_data.drop_duplicates(
+    subset=["content"]
+)
+
+# Shuffle
+news_data = news_data.sample(
+    frac=1,
+    random_state=42
+).reset_index(drop=True)
+
+# Save
+news_data.to_csv(
+    "dataset/news.csv",
+    index=False
+)
+
 print("Dataset prepared successfully!")
 print("Final dataset shape:", news_data.shape)
 
 print("\nClass distribution:")
 print(news_data["label"].value_counts())
 
-print("\nFirst 5 rows:")
+print("\nColumns:")
+print(news_data.columns.tolist())
+
+print("\nSample:")
 print(news_data.head())
-print("\n--- SAMPLE ARTICLE TEXT ---")
-
-print("\nFake article:")
-print(fake_news["text"].iloc[0])
-
-print("\nReal article:")
-print(real_news["text"].iloc[0])
